@@ -1,0 +1,14 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-LlamaRAG.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"C:/Users/sriha/OneDrive/Documents/Unreal Projects/MyProject/Intermediate/Build/Win64/x64/MyProjectEditor/Development/UnrealEd/SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj"
+"C:/Users/sriha/OneDrive/Documents/Unreal Projects/MyProject/Plugins/LlamaRAG/Intermediate/Build/Win64/x64/UnrealEditor/Development/LlamaRAG/Module.LlamaRAG.cpp.obj"
+"C:/Users/sriha/OneDrive/Documents/Unreal Projects/MyProject/Plugins/LlamaRAG/Intermediate/Build/Win64/x64/UnrealEditor/Development/LlamaRAG/LlamaRAG.cpp.obj"
+"C:/Users/sriha/OneDrive/Documents/Unreal Projects/MyProject/Plugins/LlamaRAG/Intermediate/Build/Win64/x64/UnrealEditor/Development/LlamaRAG/LlamaRAGComponent.cpp.obj"
+"C:/Users/sriha/OneDrive/Documents/Unreal Projects/MyProject/Plugins/LlamaRAG/Intermediate/Build/Win64/x64/UnrealEditor/Development/LlamaRAG/Default.rc2.res"
+/OUT:"C:/Users/sriha/OneDrive/Documents/Unreal Projects/MyProject/Plugins/LlamaRAG/Intermediate/Build/Win64/x64/UnrealEditor/Development/LlamaRAG/UnrealEditor-LlamaRAG.lib"

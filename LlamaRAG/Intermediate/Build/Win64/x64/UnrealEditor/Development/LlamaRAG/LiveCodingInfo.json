@@ -1,0 +1,12 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.LlamaRAG.cpp.obj": [
+			"LlamaRAG.init.gen.cpp.obj",
+			"LlamaRAGComponent.gen.cpp.obj",
+			"PerModuleInline.gen.cpp.obj",
+			"LlamaRAG.cpp.obj",
+			"LlamaRAGComponent.cpp.obj"
+		]
+	}
+}

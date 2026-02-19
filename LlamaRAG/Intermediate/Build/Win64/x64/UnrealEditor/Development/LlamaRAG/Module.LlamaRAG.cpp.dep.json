@@ -1,0 +1,27 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\users\\sriha\\onedrive\\documents\\unreal projects\\myproject\\plugins\\llamarag\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\llamarag\\module.llamarag.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\users\\sriha\\onedrive\\documents\\unreal projects\\myproject\\intermediate\\build\\win64\\x64\\myprojecteditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.valexpapi.cpp20.h.pch",
+        "Includes": [
+            "c:\\users\\sriha\\onedrive\\documents\\unreal projects\\myproject\\plugins\\llamarag\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\llamarag\\definitions.llamarag.h",
+            "c:\\users\\sriha\\onedrive\\documents\\unreal projects\\myproject\\plugins\\llamarag\\intermediate\\build\\win64\\unrealeditor\\inc\\llamarag\\uht\\llamarag.init.gen.cpp",
+            "c:\\users\\sriha\\onedrive\\documents\\unreal projects\\myproject\\plugins\\llamarag\\intermediate\\build\\win64\\unrealeditor\\inc\\llamarag\\uht\\llamaragcomponent.gen.cpp",
+            "c:\\users\\sriha\\onedrive\\documents\\unreal projects\\myproject\\plugins\\llamarag\\source\\llamarag\\public\\llamaragcomponent.h",
+            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\vector",
+            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\__msvc_bit_utils.hpp",
+            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\__msvc_sanitizer_annotate_container.hpp",
+            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\xpolymorphic_allocator.h",
+            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\string",
+            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\xstring",
+            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\__msvc_string_view.hpp",
+            "c:\\program files\\microsoft visual studio\\2022\\community\\vc\\tools\\msvc\\14.44.35207\\include\\cctype",
+            "c:\\users\\sriha\\onedrive\\documents\\unreal projects\\myproject\\plugins\\llamarag\\intermediate\\build\\win64\\unrealeditor\\inc\\llamarag\\uht\\llamaragcomponent.generated.h",
+            "c:\\users\\sriha\\onedrive\\documents\\unreal projects\\myproject\\plugins\\llamarag\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\llamarag\\permoduleinline.gen.cpp",
+            "c:\\program files\\epic games\\ue_5.7\\engine\\source\\runtime\\core\\public\\hal\\permoduleinline.inl"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
