@@ -5,7 +5,7 @@
 	"FriendlyName": "Llama Local RAG",
 	"Description": "Local LLM and RAG integration using llama.cpp",
 	"Category": "AI",
-	"CreatedBy": "Your Name",
+	"CreatedBy": "sri",
 	"CanContainContent": false,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
