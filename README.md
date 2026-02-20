@@ -1,142 +1,307 @@
-LlamaRAG Unreal Engine Plugin
+Here’s a clean, well-structured Markdown version with improved hierarchy, formatting, and readability:
 
-LlamaRAG is a native, offline Retrieval-Augmented Generation (RAG) plugin for Unreal Engine 5. Powered by llama.cpp, it allows you to run Large Language Models (LLMs) and Vector Embeddings natively in C++ and Blueprints.
+---
 
-With this plugin, your NPCs or in-game systems can read actual .txt files containing your game's lore, rules, or character backstories, and answer player questions dynamically—without an internet connection, without Python servers, and with zero API costs.
+# 🦙 LlamaRAG Unreal Engine Plugin
 
-🛠️ 1. Installation & Integration
+**LlamaRAG** is a native, offline Retrieval-Augmented Generation (RAG) plugin for Unreal Engine 5.
+Powered by **llama.cpp**, it allows you to run Large Language Models (LLMs) and vector embeddings natively in **C++** and **Blueprints**.
 
-To integrate this plugin into your existing Unreal Engine C++ Project, follow these steps:
+With this plugin, your NPCs or in-game systems can read `.txt` files containing lore, rules, or character backstories and answer player questions dynamically — **without an internet connection, Python servers, or API costs**.
 
-Step 1: Copy the Plugin Folder
+---
 
-Navigate to your Unreal project's root directory (where your .uproject file is).
+# 🛠️ 1. Installation & Integration
 
-Create a folder named Plugins (if it doesn't already exist).
+## Step 1 — Copy the Plugin Folder
 
-Drop the LlamaRAG plugin folder into the Plugins directory.
+1. Navigate to your Unreal project root directory (where the `.uproject` file exists).
+2. Create a folder named `Plugins` if it doesn’t exist.
+3. Place the **LlamaRAG** plugin folder inside:
 
-Step 2: Ensure Third-Party Binaries are Present
+```
+YourProject/Plugins/LlamaRAG/
+```
 
-The plugin relies on compiled llama.cpp binaries. Ensure your folder structure looks like this:
+---
 
+## Step 2 — Ensure Third-Party Binaries Are Present
+
+The plugin depends on compiled **llama.cpp** binaries.
+
+Expected folder structure:
+
+```
 YourProject/Plugins/LlamaRAG/ThirdParty/LlamaCpp/
-  ├── include/ (Contains llama.h, ggml.h, etc.)
-  ├── lib/     (Contains llama.lib)
-  └── bin/     (Contains llama.dll, ggml.dll, ggml-base.dll, etc.)
+├── include/   # llama.h, ggml.h, etc.
+├── lib/       # llama.lib
+└── bin/       # llama.dll, ggml.dll, ggml-base.dll, etc.
+```
 
+> ⚠️ The `bin` folder **must** contain all required DLLs.
+> The plugin loads them explicitly to prevent initialization crashes.
 
-Note: The bin folder MUST contain all required DLLs. The plugin's LlamaRAG.cpp module explicitly loads these into memory to prevent initialization crashes.
+---
 
-Step 3: Regenerate and Build
+## Step 3 — Regenerate and Build
 
-Right-click your YourProject.uproject file.
+1. Right-click `YourProject.uproject`
+2. Select **Generate Visual Studio project files**
+3. Open the `.sln` file
+4. Build using:
 
-Select "Generate Visual Studio project files".
+```
+Configuration: Development Editor
+Platform: Win64
+```
 
-Open the .sln file in Visual Studio.
+5. Launch Unreal Editor
+6. Go to **Edit → Plugins** and confirm **Llama Local RAG** is enabled.
 
-Set your build configuration to Development Editor (Win64) and click Build.
+---
 
-Launch your project. Open Edit -> Plugins and ensure "Llama Local RAG" is enabled.
+# 🧠 2. Setting Up AI Models & Data
 
-🧠 2. Setting Up Your AI Models & Data
+The plugin requires:
 
-The plugin requires two AI models (in .gguf format) and your text data.
+* 1️⃣ LLM model (`.gguf`)
+* 2️⃣ Embedding model (`.gguf`)
+* 3️⃣ Your text data
 
-Open your project's Content folder.
+## Create Required Folders
 
-Create a folder named Models.
+Inside your project `Content` directory:
 
-Create a folder named Data.
+```
+Content/
+├── Models/
+└── Data/
+```
 
-Download an LLM: Go to HuggingFace and download a quantized LLM (e.g., Meta-Llama-3-8B-Instruct.Q4_K_M.gguf or Phi-3-mini-4k-instruct.gguf). Place it in Content/Models/.
+---
 
-Download an Embedding Model: Go to HuggingFace and download an embedding model (e.g., nomic-embed-text-v1.5.f16.gguf). Place it in Content/Models/.
+## Download an LLM
 
-Create your Lore File: Create a text file named story.txt inside Content/Data/. Write your game lore, NPC backstory, or rules inside this file.
+Download a quantized `.gguf` model from HuggingFace, for example:
 
-📘 3. Blueprint Node Reference
+* `Meta-Llama-3-8B-Instruct.Q4_K_M.gguf`
+* `Phi-3-mini-4k-instruct.gguf`
 
-All functionality is exposed through the Llama RAG Component. Add this component to any Actor, GameMode, or PlayerController.
+Place inside:
 
-Helper Nodes
+```
+Content/Models/
+```
 
-Get Content Directory Path (Pure Node)
+---
 
-Description: Automatically finds the absolute path to your project's Content folder (works in both the Editor and Packaged games). Use this to construct safe file paths.
+## Download an Embedding Model
 
-Action Nodes (Asynchronous)
+Example:
 
-Load Models Async
+```
+nomic-embed-text-v1.5.f16.gguf
+```
 
-Description: Initializes llama.cpp and loads the LLM and Embedding models into memory on a background thread.
+Place inside:
 
-Inputs: LLMModelPath (String), EmbedModelPath (String).
+```
+Content/Models/
+```
 
+---
+
+## Create Your Lore File
+
+Create:
+
+```
+Content/Data/story.txt
+```
+
+Add your:
+
+* Game lore
+* NPC backstory
+* Rules
+* World knowledge
+
+---
+
+# 📘 3. Blueprint Node Reference
+
+All functionality is exposed via the **Llama RAG Component**.
+
+Add this component to:
+
+* Actor
+* GameMode
+* PlayerController
+* NPC Controller
+
+---
+
+## 🧩 Helper Nodes
+
+### **Get Content Directory Path** *(Pure Node)*
+
+**Description:**
+Returns the absolute path to the project `Content` folder.
+Works in both Editor and Packaged builds.
+
+---
+
+## ⚡ Action Nodes (Async)
+
+### **Load Models Async**
+
+Loads llama.cpp and initializes LLM + embedding models in a background thread.
+
+**Inputs**
+
+* `LLMModelPath` (String)
+* `EmbedModelPath` (String)
+
+---
+
+### **Ingest Story From File Async**
+
+Reads a `.txt` file, chunks text, generates embeddings, and stores them in RAM.
+
+**Inputs**
+
+* `FilePath` (String)
+* `ChunkSize` (Integer, Default: `500`)
+
+---
+
+### **Ask Question Async**
+
+Searches ingested text and generates contextual answers.
+
+**Inputs**
+
+* `Question` (String)
+* `TopK` (Integer, Default: `3`)
+  Determines number of retrieved context chunks.
+
+---
+
+## 🔔 Event Dispatchers (Callbacks)
+
+AI operations run in background threads. Bind to these events:
+
+### **On Models Loaded**
+
+* Fires when models finish loading
+* Output: `bSuccess` (Boolean)
+
+---
+
+### **On Story Ingested**
+
+* Fires when text embedding completes
+* Output: `bSuccess` (Boolean)
+
+---
+
+### **On Answer Generated**
+
+* Fires when LLM finishes generating
+* Output: `Answer` (String)
+
+---
+
+# 🎮 4. Detailed Blueprint Usage Guide
+
+Example Blueprint: `BP_NPC_Controller`
+
+---
+
+## Step 1 — Add Component
+
+1. Open Blueprint
+2. Click **Add Component**
+3. Select **Llama RAG Component**
+
+---
+
+## Step 2 — Load Models (BeginPlay)
+
+From `Event BeginPlay`:
+
+1. Call **Load Models Async**
+2. Build paths:
+
+```
+Get Content Directory Path
+      ↓
+Append String
+      ↓
+Models/your_llm_name.gguf
+```
+
+Repeat for embedding model.
+
+Add event:
+
+```
+On Models Loaded
+```
+
+---
+
+## Step 3 — Ingest Lore File
+
+From `On Models Loaded`:
+
+1. Add Branch → check `bSuccess == true`
+2. Call:
+
+```
 Ingest Story From File Async
+```
 
-Description: Reads a .txt file, splits it into chunks, calculates the vector embeddings, and stores them in RAM.
+Path example:
 
-Inputs: FilePath (String), ChunkSize (Integer, Default: 500).
+```
+Get Content Directory Path → Append → Data/story.txt
+```
 
+Bind:
+
+```
+On Story Ingested
+```
+
+When triggered:
+
+👉 Enable player chat UI — AI is ready.
+
+---
+
+## Step 4 — Ask Questions
+
+When player submits a question:
+
+```
 Ask Question Async
+```
 
-Description: Takes the player's question, searches the ingested text for the most relevant context, and generates a contextual answer.
+Bind:
 
-Inputs: Question (String), TopK (Integer, Default: 3). TopK determines how many chunks of text are retrieved as context.
+```
+On Answer Generated
+```
 
-Event Dispatchers (Callbacks)
+Use returned `Answer` to:
 
-Because AI generation is heavy, you must bind to these events to know when the background threads finish their tasks.
+* Display in Dialogue UI
+* Print to screen
+* Send to Text-To-Speech
 
-On Models Loaded: Fires when models finish loading. Outputs bSuccess (Boolean).
+---
 
-On Story Ingested: Fires when the text file is fully embedded. Outputs bSuccess (Boolean).
+✅ **Your offline RAG NPC system is now fully integrated into Unreal Engine!**
 
-On Answer Generated: Fires when the LLM finishes generating the text. Outputs the Answer (String).
-
-🎮 4. Detailed Blueprint Usage Guide
-
-Here is exactly how to wire up the system in a Blueprint (e.g., BP_NPC_Controller):
-
-Step 1: Add the Component
-
-Open your Blueprint, click Add Component, and select Llama RAG Component.
-
-Step 2: Load the Models (On BeginPlay)
-
-From Event BeginPlay, drag in your Llama RAG Component and call Load Models Async.
-
-Build the Paths: Drag off the component and call Get Content Directory Path.
-
-Use an Append string node:
-
-A: Output of Get Content Directory Path
-
-B: Models/your_llm_name.gguf
-
-Plug the result into LLMModelPath.
-
-Do the same for EmbedModelPath (e.g., Models/nomic-embed.gguf).
-
-Select the component, go to the details panel, and click the green + to add the On Models Loaded event.
-
-Step 3: Ingest the Lore File
-
-From the On Models Loaded event, add a Branch checking if bSuccess is True.
-
-If True, call Ingest Story From File Async.
-
-Build the Path: Get Content Directory Path -> Append -> Data/story.txt.
-
-Add the On Story Ingested event to your graph. When it fires, you can enable the player's chat box UI (the AI is now ready!).
-
-Step 4: Ask Questions & Receive Answers
-
-When the player submits a question via your UI, call Ask Question Async and pass the text in.
-
-Add the On Answer Generated event to your graph.
-
-When this event fires, take the Answer string and print it to the screen, pass it to your Dialogue UI, or send it to a Text-To-Speech system!
-
+---
