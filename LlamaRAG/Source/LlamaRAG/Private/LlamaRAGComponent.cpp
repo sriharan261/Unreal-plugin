@@ -1,9 +1,8 @@
 #include "LlamaRAGComponent.h"
 #include "Async/Async.h"
 #include "Misc/Paths.h"
+#include "Misc/FileHelper.h"
 #include "Math/UnrealMathUtility.h"
-
-// Include the standard llama.cpp header
 #include "llama.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogLlamaRAG, Log, All);
@@ -11,31 +10,26 @@ DEFINE_LOG_CATEGORY_STATIC(LogLlamaRAG, Log, All);
 ULlamaRAGComponent::ULlamaRAGComponent()
 {
     PrimaryComponentTick.bCanEverTick = false;
-    LlmModel = nullptr;
-    LlmContext = nullptr;
-    EmbedModel = nullptr;
-    EmbedContext = nullptr;
+    LlmModel = nullptr; LlmContext = nullptr;
+    EmbedModel = nullptr; EmbedContext = nullptr;
     bIsBusy = false;
 }
 
-void ULlamaRAGComponent::BeginPlay()
-{
-    Super::BeginPlay();
-    // Initialize the llama backend once
-    llama_backend_init();
-}
+void ULlamaRAGComponent::BeginPlay() { Super::BeginPlay(); llama_backend_init(); }
 
 void ULlamaRAGComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    // Clean up memory using the updated llama_model_free API
     if (LlmContext) { llama_free(LlmContext); LlmContext = nullptr; }
     if (LlmModel) { llama_model_free(LlmModel); LlmModel = nullptr; }
-    
     if (EmbedContext) { llama_free(EmbedContext); EmbedContext = nullptr; }
     if (EmbedModel) { llama_model_free(EmbedModel); EmbedModel = nullptr; }
-
     llama_backend_free();
     Super::EndPlay(EndPlayReason);
+}
+
+FString ULlamaRAGComponent::GetContentDirectoryPath() const
+{
+    return FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir());
 }
 
 void ULlamaRAGComponent::LoadModelsAsync(const FString& LLMModelPath, const FString& EmbedModelPath)
@@ -45,15 +39,13 @@ void ULlamaRAGComponent::LoadModelsAsync(const FString& LLMModelPath, const FStr
 
     Async(EAsyncExecution::Thread, [this, LLMModelPath, EmbedModelPath]()
     {
-        // 1. Load LLM using updated model_load_from_file API
         llama_model_params model_params = llama_model_default_params();
         LlmModel = llama_model_load_from_file(TCHAR_TO_UTF8(*LLMModelPath), model_params);
         
         llama_context_params ctx_params = llama_context_default_params();
-        ctx_params.n_ctx = 2048; // Context window size
+        ctx_params.n_ctx = 2048;
         if (LlmModel) LlmContext = llama_init_from_model(LlmModel, ctx_params);
 
-        // 2. Load Embedding Model
         llama_model_params embed_m_params = llama_model_default_params();
         EmbedModel = llama_model_load_from_file(TCHAR_TO_UTF8(*EmbedModelPath), embed_m_params);
         
@@ -69,6 +61,21 @@ void ULlamaRAGComponent::LoadModelsAsync(const FString& LLMModelPath, const FStr
             OnModelsLoaded.Broadcast(bSuccess);
         });
     });
+}
+
+// NEW: File Reader Implementation
+void ULlamaRAGComponent::IngestStoryFromFileAsync(const FString& FilePath, int32 ChunkSize)
+{
+    FString FileContent;
+    if (FFileHelper::LoadFileToString(FileContent, *FilePath))
+    {
+        IngestStoryAsync(FileContent, ChunkSize);
+    }
+    else
+    {
+        UE_LOG(LogLlamaRAG, Error, TEXT("Failed to load TXT file from: %s"), *FilePath);
+        OnStoryIngested.Broadcast(false);
+    }
 }
 
 void ULlamaRAGComponent::IngestStoryAsync(const FString& StoryText, int32 ChunkSize)
@@ -123,9 +130,7 @@ void ULlamaRAGComponent::AskQuestionAsync(const FString& Question, int32 TopK)
             Scores.Add({SimScore, i});
         }
 
-        Scores.Sort([](const FScorePair& A, const FScorePair& B) {
-            return A.Score > B.Score;
-        });
+        Scores.Sort([](const FScorePair& A, const FScorePair& B) { return A.Score > B.Score; });
 
         FString Context = TEXT("");
         for (int32 i = 0; i < FMath::Min(TopK, Scores.Num()); ++i)
@@ -144,16 +149,12 @@ void ULlamaRAGComponent::AskQuestionAsync(const FString& Question, int32 TopK)
     });
 }
 
-// --- Internal Helpers ---
-
 TArray<float> ULlamaRAGComponent::GenerateEmbedding(const FString& Text)
 {
     TArray<float> Result;
     if (!EmbedContext) return Result;
 
     std::string StdText = TCHAR_TO_UTF8(*Text);
-    
-    // Updated: Vocab is now separated from the model
     const llama_vocab* vocab = llama_model_get_vocab(EmbedModel);
     
     std::vector<llama_token> tokens(StdText.length() + 1);
@@ -161,21 +162,13 @@ TArray<float> ULlamaRAGComponent::GenerateEmbedding(const FString& Text)
     if (n_tokens < 0) return Result;
     tokens.resize(n_tokens);
 
-    // Updated: batch_get_one now only requires 2 arguments
     llama_batch batch = llama_batch_get_one(tokens.data(), tokens.size());
     if (llama_decode(EmbedContext, batch) != 0) return Result;
 
-    // Updated: n_embd moved to model API
     const int n_embd = llama_model_n_embd(EmbedModel);
     const float* embeddings = llama_get_embeddings_seq(EmbedContext, 0);
     
-    if (embeddings)
-    {
-        for (int i = 0; i < n_embd; ++i)
-        {
-            Result.Add(embeddings[i]);
-        }
-    }
+    if (embeddings) { for (int i = 0; i < n_embd; ++i) Result.Add(embeddings[i]); }
     return Result;
 }
 
@@ -197,7 +190,6 @@ FString ULlamaRAGComponent::GenerateTextInternal(const FString& Prompt)
 
     while (n_cur <= n_max)
     {
-        // Custom Greedy Sampler Native to C++ (Avoids missing llama-sampling headers)
         float* logits = llama_get_logits_ith(LlmContext, batch.n_tokens - 1);
         int32_t n_vocab = llama_vocab_n_tokens(vocab);
         
@@ -208,11 +200,9 @@ FString ULlamaRAGComponent::GenerateTextInternal(const FString& Prompt)
             if (logits[i] > max_logit) { max_logit = logits[i]; new_token_id = i; }
         }
 
-        // Updated: EOS check now requires vocab
-        if (new_token_id == llama_token_eos(vocab)) break;
+        if (new_token_id == llama_vocab_eos(vocab)) break;
 
         char buf[128];
-        // Updated: token_to_piece now takes 6 arguments
         int n_chars = llama_token_to_piece(vocab, new_token_id, buf, sizeof(buf), 0, false);
         if (n_chars > 0)
         {
@@ -231,15 +221,8 @@ FString ULlamaRAGComponent::GenerateTextInternal(const FString& Prompt)
 float ULlamaRAGComponent::CalculateCosineSimilarity(const TArray<float>& A, const TArray<float>& B)
 {
     if (A.Num() != B.Num() || A.Num() == 0) return 0.0f;
-
     float Dot = 0.0f, NormA = 0.0f, NormB = 0.0f;
-    for (int32 i = 0; i < A.Num(); ++i)
-    {
-        Dot += A[i] * B[i];
-        NormA += A[i] * A[i];
-        NormB += B[i] * B[i];
-    }
-    
+    for (int32 i = 0; i < A.Num(); ++i) { Dot += A[i] * B[i]; NormA += A[i] * A[i]; NormB += B[i] * B[i]; }
     float Denominator = FMath::Sqrt(NormA) * FMath::Sqrt(NormB);
     return (Denominator > 0.0f) ? (Dot / Denominator) : 0.0f;
 }
